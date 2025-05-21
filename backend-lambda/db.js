@@ -1,10 +1,11 @@
-// backend-lambda/db.js
-import postgres from 'postgres';
-import dotenv from 'dotenv';
-dotenv.config();
+const { Pool } = require('pg');
+require('dotenv').config();
 
-const sql = postgres(process.env.DATABASE_URL, {
-  ssl: 'require',
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false } // necessário para Supabase
 });
 
-export default sql;
+module.exports = {
+  query: (text, params) => pool.query(text, params),
+};

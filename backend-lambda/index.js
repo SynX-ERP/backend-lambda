@@ -1,21 +1,21 @@
+require('dotenv').config();
 const express = require('express');
 const app = express();
-const db = require('./db');
-require('dotenv').config();
 
+// Middlewares
 app.use(express.json());
 
-app.get('/usuarios', async (req, res) => {
-  try {
-    const result = await db.query('SELECT * FROM usuarios');
-    res.json(result.rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Erro no servidor');
-  }
+// Rotas
+const usuariosRoutes = require('./routes/usuariosRoutes');
+app.use('/usuarios', usuariosRoutes);
+
+// Rota padrão
+app.get('/', (req, res) => {
+  res.send('✅ API do projeto está rodando com sucesso!');
 });
 
+// Inicializa o servidor
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
+  console.log(`🚀 Servidor rodando na porta ${PORT}`);
 });

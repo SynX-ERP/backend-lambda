@@ -14,4 +14,7 @@ router.put('/:id', enderecoController.atualizarEndereco);
 // 🗑️ DELETE - Remover endereço
 router.delete('/:id', enderecoController.deletarEndereco);
 
+// 🔍 GET - Listar endereços por usuário
+router.get('/usuario/:id_usuario', enderecoController.listarEnderecoPorUsuario);
+
 module.exports = router;

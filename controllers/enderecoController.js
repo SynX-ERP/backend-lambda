@@ -77,9 +77,26 @@ const deletarEndereco = async (req, res) => {
     }
 };
 
+const listarEnderecoPorUsuario = async (req, res) => {
+  const { id_usuario } = req.params;
+
+  try {
+    const result = await db.query(
+      `SELECT * FROM enderecos WHERE id_usuario = $1 ORDER BY id_endereco DESC`,
+      [id_usuario]
+    );
+
+    res.status(200).json(result.rows);
+  } catch (err) {
+    console.error('Erro ao buscar endereços do usuário:', err.message);
+    res.status(500).json({ erro: 'Erro interno no servidor' });
+  }
+};
+
 module.exports = {
     listarEndereco,
     criarEndereco,
     atualizarEndereco,
-    deletarEndereco
+    deletarEndereco,
+    listarEnderecoPorUsuario
 };

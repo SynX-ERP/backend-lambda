@@ -11,9 +11,17 @@ app.use(express.json());
 const usuariosRoutes = require('./routes/usuariosRoutes');
 app.use('/usuarios', usuariosRoutes);
 
+const enderecoRoutes = require('./routes/enderecoRoutes');
+app.use('/enderecos', enderecoRoutes);
+
 // Rota padrão
 app.get('/', (req, res) => {
   res.send('✅ API do projeto está rodando com sucesso!');
+});
+
+// Middleware 404
+app.use((req, res, next) => {
+  res.status(404).json({ erro: 'Rota não encontrada' });
 });
 
 // Inicializa o servidor

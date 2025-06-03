@@ -195,11 +195,39 @@ const loginUsuario = async (req, res) => {
   }
 };
 
+const atualizarNivelAcesso = async (req, res) => {
+  const { id } = req.params;
+  const { nivel_acesso } = req.body;
+
+  if (!nivel_acesso) {
+    return res.status(400).json({ erro: 'Nível de acesso é obrigatório' });
+  }
+
+  try {
+    const existe = await db.query('SELECT 1 FROM usuarios WHERE id_usuario = $1', [id]);
+    if (existe.rowCount === 0) {
+      return res.status(404).json({ erro: 'Usuário não encontrado' });
+    }
+
+    await db.query(`
+      UPDATE usuarios 
+      SET nivel_acesso = $1, ultima_atualizacao = NOW() 
+      WHERE id_usuario = $2
+    `, [nivel_acesso, id]);
+
+    res.status(200).json({ mensagem: 'Nível de acesso atualizado com sucesso' });
+
+  } catch (err) {
+    console.error('Erro ao atualizar nível de acesso:', err.message);
+    res.status(500).json({ erro: 'Erro interno no servidor' });
+  }
+};
 
 module.exports = {
   listarUsuarios,
   criarUsuario,
   atualizarUsuario,
   removerUsuario,
-  loginUsuario
+  loginUsuario,
+  atualizarNivelAcesso
 };

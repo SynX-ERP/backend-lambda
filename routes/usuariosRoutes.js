@@ -13,5 +13,6 @@ router.post('/',  usuariosController.criarUsuario);
 router.put('/:id',  usuariosController.atualizarUsuario);
 // Remove um usuário
 router.delete('/:id',  usuariosController.removerUsuario);
-
+// Atualiza o nível de acesso de um usuário
+router.put('/:id/nivel', usuariosController.atualizarNivelAcesso);
 module.exports = router;

@@ -176,7 +176,10 @@ const loginUsuario = async (req, res) => {
         data_criacao: usuario.data_criacao,
         foto_perfil: usuario.foto_perfil,
         telefone: usuario.telefone,
-        genero: usuario.genero
+        genero: usuario.genero,
+        cpf: usuario.cpf,
+        data_nascimento: usuario.data_nascimento
+        // adicione aqui mais campos se quiser
       }
     });
 

@@ -14,6 +14,9 @@ app.use('/usuarios', usuariosRoutes);
 const enderecoRoutes = require('./routes/enderecoRoutes');
 app.use('/enderecos', enderecoRoutes);
 
+const produtosRoutes = require('./routes/produtosRoutes');
+app.use('/produtos', produtosRoutes);
+
 // Rota padrão
 app.get('/', (req, res) => {
   res.send('✅ API do projeto está rodando com sucesso!');

@@ -4,7 +4,7 @@ const { v4: uuidv4 } = require('uuid');
 const listarProdutos = async (req, res) => {
   try {
     const result = await db.query(`
-      SELECT id_produto, nome, preco, categoria, descricao, imagem, data_criacao
+      SELECT id_produto, codigo, nome, preco, categoria, descricao, imagem, data_criacao
       FROM produtos
       ORDER BY data_criacao DESC
     `);
@@ -16,10 +16,10 @@ const listarProdutos = async (req, res) => {
 };
 
 const criarProduto = async (req, res) => {
-  const { nome, preco, categoria, descricao, imagem } = req.body;
+  const { codigo, nome, preco, categoria, descricao, imagem } = req.body;
 
-  if (!nome || !preco) {
-    return res.status(400).json({ erro: "Nome e preço são obrigatórios" });
+  if (!codigo || !nome || !preco) {
+    return res.status(400).json({ erro: "Código, nome e preço são obrigatórios" });
   }
 
   try {
@@ -27,11 +27,11 @@ const criarProduto = async (req, res) => {
 
     await db.query(`
       INSERT INTO produtos (
-        id_produto, nome, preco, categoria, descricao, imagem, data_criacao
+        id_produto, codigo, nome, preco, categoria, descricao, imagem, data_criacao
       ) VALUES (
-        $1, $2, $3, $4, $5, $6, NOW()
+        $1, $2, $3, $4, $5, $6, $7, NOW()
       )
-    `, [id, nome, preco, categoria, descricao, imagem]);
+    `, [id, codigo, nome, preco, categoria, descricao, imagem]);
 
     res.status(201).json({ mensagem: "Produto criado com sucesso" });
   } catch (err) {
@@ -42,19 +42,24 @@ const criarProduto = async (req, res) => {
 
 const atualizarProduto = async (req, res) => {
   const { id } = req.params;
-  const { nome, preco, categoria, descricao, imagem } = req.body;
+  const { codigo, nome, preco, categoria, descricao, imagem } = req.body;
+
+  if (!codigo || !nome || !preco) {
+    return res.status(400).json({ erro: "Código, nome e preço são obrigatórios" });
+  }
 
   try {
-    const result = await db.query(`
+    await db.query(`
       UPDATE produtos SET
-        nome = $1,
-        preco = $2,
-        categoria = $3,
-        descricao = $4,
-        imagem = $5,
+        codigo = $1,
+        nome = $2,
+        preco = $3,
+        categoria = $4,
+        descricao = $5,
+        imagem = $6,
         ultima_atualizacao = NOW()
-      WHERE id_produto = $6
-    `, [nome, preco, categoria, descricao, imagem, id]);
+      WHERE id_produto = $7
+    `, [codigo, nome, preco, categoria, descricao, imagem, id]);
 
     res.status(200).json({ mensagem: "Produto atualizado com sucesso" });
   } catch (err) {

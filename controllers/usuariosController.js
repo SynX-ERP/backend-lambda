@@ -23,14 +23,18 @@ const listarUsuarios = async (req, res) => {
 };
 
 const criarUsuario = async (req, res) => {
-  const { nome_completo, email, senha, nivel_acesso = 'user' } = req.body;
+  const {
+    nome_completo, email, senha, nivel_acesso = 'user',
+    telefone = null, cpf = null, data_nascimento = null,
+    genero = null, foto_perfil = null
+  } = req.body;
 
+  // ⚠️ Validação dos campos obrigatórios
   if (!nome_completo || !email || !senha) {
     return res.status(400).json({ erro: 'Campos obrigatórios: nome_completo, email, senha' });
   }
 
   try {
-    // Verifica se o e-mail já existe
     const existe = await db.query('SELECT 1 FROM usuarios WHERE email = $1', [email]);
     if (existe.rows.length > 0) {
       return res.status(409).json({ erro: 'Email já cadastrado' });
@@ -39,13 +43,19 @@ const criarUsuario = async (req, res) => {
     const id = uuidv4();
     const senha_hash = await bcrypt.hash(senha, 10);
 
-    const result = await db.query(
-      `INSERT INTO usuarios 
-        (id_usuario, nome_completo, email, senha_hash, nivel_acesso, data_criacao)
-       VALUES ($1, $2, $3, $4, $5, NOW())
-       RETURNING id_usuario, nome_completo, email, nivel_acesso, data_criacao`,
-      [id, nome_completo, email, senha_hash, nivel_acesso]
-    );
+    const result = await db.query(`
+      INSERT INTO usuarios (
+        id_usuario, nome_completo, email, senha_hash, nivel_acesso,
+        data_criacao, telefone, cpf, data_nascimento, genero, foto_perfil
+      ) VALUES (
+        $1, $2, $3, $4, $5,
+        NOW(), $6, $7, $8, $9, $10
+      )
+      RETURNING id_usuario, nome_completo, email, nivel_acesso, data_criacao
+    `, [
+      id, nome_completo, email, senha_hash, nivel_acesso,
+      telefone, cpf, data_nascimento, genero, foto_perfil
+    ]);
 
     res.status(201).json(result.rows[0]);
 
@@ -57,7 +67,10 @@ const criarUsuario = async (req, res) => {
 
 const atualizarUsuario = async (req, res) => {
   const { id } = req.params;
-  const { nome_completo, email, senha, nivel_acesso } = req.body;
+  const {
+    nome_completo, email, senha, nivel_acesso,
+    telefone, cpf, data_nascimento, genero, foto_perfil
+  } = req.body;
 
   try {
     // Verifica se o usuário existe
@@ -69,19 +82,27 @@ const atualizarUsuario = async (req, res) => {
     // Se nova senha for enviada, faz o hash
     let senha_hash = existe.rows[0].senha_hash;
     if (senha) {
-      const bcrypt = require('bcrypt');
       senha_hash = await bcrypt.hash(senha, 10);
     }
 
     const result = await db.query(
       `UPDATE usuarios SET 
-         nome_completo = $1, 
-         email = $2, 
-         senha_hash = $3, 
-         nivel_acesso = $4 
-       WHERE id_usuario = $5 
-       RETURNING id_usuario, nome_completo, email, nivel_acesso, data_criacao`,
-      [nome_completo, email, senha_hash, nivel_acesso, id]
+        nome_completo = $1,
+        email = $2,
+        senha_hash = $3,
+        nivel_acesso = $4,
+        telefone = $5,
+        cpf = $6,
+        data_nascimento = $7,
+        genero = $8,
+        foto_perfil = $9,
+        ultima_atualizacao = NOW()
+      WHERE id_usuario = $10
+      RETURNING id_usuario, nome_completo, email, nivel_acesso, telefone, cpf, data_nascimento, genero, foto_perfil, data_criacao`,
+      [
+        nome_completo, email, senha_hash, nivel_acesso,
+        telefone, cpf, data_nascimento, genero, foto_perfil, id
+      ]
     );
 
     res.status(200).json(result.rows[0]);
@@ -152,7 +173,10 @@ const loginUsuario = async (req, res) => {
         nome_completo: usuario.nome_completo,
         email: usuario.email,
         nivel_acesso: usuario.nivel_acesso,
-        data_criacao: usuario.data_criacao
+        data_criacao: usuario.data_criacao,
+        foto_perfil: usuario.foto_perfil,
+        telefone: usuario.telefone,
+        genero: usuario.genero
       }
     });
 

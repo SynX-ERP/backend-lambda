@@ -160,7 +160,13 @@ const loginUsuario = async (req, res) => {
       {
         id_usuario: usuario.id_usuario,
         nome_completo: usuario.nome_completo,
-        nivel_acesso: usuario.nivel_acesso
+        nivel_acesso: usuario.nivel_acesso,
+        data_criacao: usuario.data_criacao,
+        foto_perfil: usuario.foto_perfil,
+        telefone: usuario.telefone,
+        genero: usuario.genero,
+        cpf: usuario.cpf,
+        data_nascimento: usuario.data_nascimento
       },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRATION || '1h' }

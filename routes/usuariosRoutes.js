@@ -3,7 +3,7 @@ const router = express.Router();
 const usuariosController = require('../controllers/usuariosController');
 
 
-// Middleware para verificar se o usuário está autenticado
+// Endpoint para login do usuário
 router.post('/login', usuariosController.loginUsuario);
 // Lista todos os usuários
 router.get('/',  usuariosController.listarUsuarios);

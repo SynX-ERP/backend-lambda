@@ -1,3 +1,1 @@
-node_modules/*
-!node_modules/express-validator/
-!node_modules/express-validator/**
+node_modules

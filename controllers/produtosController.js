@@ -49,7 +49,7 @@ const atualizarProduto = async (req, res) => {
   }
 
   try {
-    await db.query(`
+    const result = await db.query(`
       UPDATE produtos SET
         codigo = $1,
         nome = $2,
@@ -59,9 +59,14 @@ const atualizarProduto = async (req, res) => {
         imagem = $6,
         ultima_atualizacao = NOW()
       WHERE id_produto = $7
+      RETURNING *
     `, [codigo, nome, preco, categoria, descricao, imagem, id]);
 
-    res.status(200).json({ mensagem: "Produto atualizado com sucesso" });
+    if (result.rowCount === 0) {
+      return res.status(404).json({ erro: "Produto n\u00e3o encontrado" });
+    }
+
+    res.status(200).json(result.rows[0]);
   } catch (err) {
     console.error("Erro ao atualizar produto:", err.message);
     res.status(500).json({ erro: "Erro ao atualizar produto" });
@@ -72,7 +77,12 @@ const removerProduto = async (req, res) => {
   const { id } = req.params;
 
   try {
-    await db.query('DELETE FROM produtos WHERE id_produto = $1', [id]);
+    const result = await db.query('DELETE FROM produtos WHERE id_produto = $1 RETURNING id_produto', [id]);
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ erro: "Produto n\u00e3o encontrado" });
+    }
+
     res.status(200).json({ mensagem: "Produto removido com sucesso" });
   } catch (err) {
     console.error("Erro ao excluir produto:", err.message);

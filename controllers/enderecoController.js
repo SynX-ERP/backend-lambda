@@ -45,19 +45,25 @@ const atualizarEndereco = async (req, res) => {
     const { rua, numero, complemento, bairro, cidade, estado, cep } = req.body;
 
     try {
-        await db.query(`
-            UPDATE enderecos SET 
+        const result = await db.query(`
+            UPDATE enderecos SET
                 rua = $1,
                 numero = $2,
                 complemento = $3,
                 bairro = $4,
                 cidade = $5,
                 estado = $6,
-                cep = $7
+                cep = $7,
+                ultima_atualizacao = NOW()
             WHERE id_endereco = $8
+            RETURNING *
         `, [rua, numero, complemento, bairro, cidade, estado, cep, id]);
 
-        res.status(200).json({ mensagem: 'Endereço atualizado com sucesso.' });
+        if (result.rowCount === 0) {
+            return res.status(404).json({ erro: 'Endereço não encontrado.' });
+        }
+
+        res.status(200).json(result.rows[0]);
     } catch (err) {
         console.error('Erro ao atualizar endereço:', err.message);
         res.status(500).json({ erro: 'Erro interno no servidor' });
@@ -69,7 +75,15 @@ const deletarEndereco = async (req, res) => {
     const { id } = req.params;
 
     try {
-        await db.query(`DELETE FROM enderecos WHERE id_endereco = $1`, [id]);
+        const result = await db.query(
+            `DELETE FROM enderecos WHERE id_endereco = $1 RETURNING id_endereco`,
+            [id]
+        );
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ erro: 'Endereço não encontrado.' });
+        }
+
         res.status(200).json({ mensagem: 'Endereço excluído com sucesso.' });
     } catch (err) {
         console.error('Erro ao excluir endereço:', err.message);

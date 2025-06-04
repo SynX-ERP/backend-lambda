@@ -1,15 +1,11 @@
-const db = require('../db');
+const EnderecoModel = require('../models/enderecoModel');
 const { v4: uuidv4 } = require('uuid');
 
 // 🔍 Listar todos os endereços
 const listarEndereco = async (req, res) => {
     try {
-        const result = await db.query(`
-            SELECT id_endereco, id_usuario, rua, numero, complemento, bairro, cidade, estado, cep
-            FROM enderecos
-            ORDER BY id_endereco DESC
-        `);
-        res.status(200).json(result.rows);
+        const enderecos = await EnderecoModel.listarEnderecos();
+        res.status(200).json(enderecos);
     } catch (err) {
         console.error('Erro ao listar endereços:', err.message);
         res.status(500).json({ erro: 'Erro interno no servidor' });
@@ -26,11 +22,17 @@ const criarEndereco = async (req, res) => {
 
     try {
         const id_endereco = uuidv4();
-        await db.query(`
-            INSERT INTO enderecos (
-                id_endereco, id_usuario, rua, numero, complemento, bairro, cidade, estado, cep
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-        `, [id_endereco, id_usuario, rua, numero, complemento, bairro, cidade, estado, cep]);
+        await EnderecoModel.criarEndereco({
+            id_endereco,
+            id_usuario,
+            rua,
+            numero,
+            complemento,
+            bairro,
+            cidade,
+            estado,
+            cep
+        });
 
         res.status(201).json({ mensagem: 'Endereço cadastrado com sucesso.' });
     } catch (err) {
@@ -45,25 +47,21 @@ const atualizarEndereco = async (req, res) => {
     const { rua, numero, complemento, bairro, cidade, estado, cep } = req.body;
 
     try {
-        const result = await db.query(`
-            UPDATE enderecos SET
-                rua = $1,
-                numero = $2,
-                complemento = $3,
-                bairro = $4,
-                cidade = $5,
-                estado = $6,
-                cep = $7,
-                ultima_atualizacao = NOW()
-            WHERE id_endereco = $8
-            RETURNING *
-        `, [rua, numero, complemento, bairro, cidade, estado, cep, id]);
+        const result = await EnderecoModel.atualizarEndereco(id, {
+            rua,
+            numero,
+            complemento,
+            bairro,
+            cidade,
+            estado,
+            cep
+        });
 
-        if (result.rowCount === 0) {
+        if (!result) {
             return res.status(404).json({ erro: 'Endereço não encontrado.' });
         }
 
-        res.status(200).json(result.rows[0]);
+        res.status(200).json(result);
     } catch (err) {
         console.error('Erro ao atualizar endereço:', err.message);
         res.status(500).json({ erro: 'Erro interno no servidor' });
@@ -75,12 +73,9 @@ const deletarEndereco = async (req, res) => {
     const { id } = req.params;
 
     try {
-        const result = await db.query(
-            `DELETE FROM enderecos WHERE id_endereco = $1 RETURNING id_endereco`,
-            [id]
-        );
+        const result = await EnderecoModel.deletarEndereco(id);
 
-        if (result.rowCount === 0) {
+        if (!result) {
             return res.status(404).json({ erro: 'Endereço não encontrado.' });
         }
 
@@ -95,12 +90,9 @@ const listarEnderecoPorUsuario = async (req, res) => {
   const { id_usuario } = req.params;
 
   try {
-    const result = await db.query(
-      `SELECT * FROM enderecos WHERE id_usuario = $1 ORDER BY id_endereco DESC`,
-      [id_usuario]
-    );
+    const enderecos = await EnderecoModel.listarEnderecosPorUsuario(id_usuario);
 
-    res.status(200).json(result.rows);
+    res.status(200).json(enderecos);
   } catch (err) {
     console.error('Erro ao buscar endereços do usuário:', err.message);
     res.status(500).json({ erro: 'Erro interno no servidor' });
@@ -112,16 +104,13 @@ const buscarEnderecoPorId = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const result = await db.query(
-      `SELECT * FROM enderecos WHERE id_endereco = $1`,
-      [id]
-    );
+    const endereco = await EnderecoModel.buscarEnderecoPorId(id);
 
-    if (result.rows.length === 0) {
+    if (!endereco) {
       return res.status(404).json({ erro: 'Endereço não encontrado.' });
     }
 
-    res.status(200).json(result.rows[0]);
+    res.status(200).json(endereco);
   } catch (err) {
     console.error('Erro ao buscar endereço por ID:', err.message);
     res.status(500).json({ erro: 'Erro interno no servidor' });

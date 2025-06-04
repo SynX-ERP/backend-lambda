@@ -79,6 +79,17 @@ const atualizarUsuario = async (req, res) => {
       return res.status(404).json({ erro: 'Usuário não encontrado' });
     }
 
+    // Verifica se o email já está sendo utilizado por outro usuário
+    if (email && email !== existe.rows[0].email) {
+      const existeEmail = await db.query(
+        'SELECT 1 FROM usuarios WHERE email = $1 AND id_usuario <> $2',
+        [email, id]
+      );
+      if (existeEmail.rows.length > 0) {
+        return res.status(409).json({ erro: 'Email já cadastrado' });
+      }
+    }
+
     // Se nova senha for enviada, faz o hash
     let senha_hash = existe.rows[0].senha_hash;
     if (senha) {

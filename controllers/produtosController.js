@@ -1,7 +1,7 @@
 const db = require('../db');
 const { v4: uuidv4 } = require('uuid');
 
-const listarProdutos = async (req, res) => {
+const listarProdutos = async (req, res, next) => {
   try {
     const result = await db.query(`
       SELECT id_produto, codigo, nome, preco, categoria, descricao, imagem, data_criacao
@@ -10,12 +10,11 @@ const listarProdutos = async (req, res) => {
     `);
     res.status(200).json(result.rows);
   } catch (err) {
-    console.error("Erro ao listar produtos:", err.message);
-    res.status(500).json({ erro: "Erro interno no servidor" });
+    next(err);
   }
 };
 
-const criarProduto = async (req, res) => {
+const criarProduto = async (req, res, next) => {
   const { codigo, nome, preco, categoria, descricao, imagem } = req.body;
 
   if (!codigo || !nome || !preco) {
@@ -35,12 +34,11 @@ const criarProduto = async (req, res) => {
 
     res.status(201).json({ mensagem: "Produto criado com sucesso" });
   } catch (err) {
-    console.error("Erro ao criar produto:", err.message);
-    res.status(500).json({ erro: "Erro ao criar produto" });
+    next(err);
   }
 };
 
-const atualizarProduto = async (req, res) => {
+const atualizarProduto = async (req, res, next) => {
   const { id } = req.params;
   const { codigo, nome, preco, categoria, descricao, imagem } = req.body;
 
@@ -68,12 +66,11 @@ const atualizarProduto = async (req, res) => {
 
     res.status(200).json(result.rows[0]);
   } catch (err) {
-    console.error("Erro ao atualizar produto:", err.message);
-    res.status(500).json({ erro: "Erro ao atualizar produto" });
+    next(err);
   }
 };
 
-const removerProduto = async (req, res) => {
+const removerProduto = async (req, res, next) => {
   const { id } = req.params;
 
   try {
@@ -85,8 +82,7 @@ const removerProduto = async (req, res) => {
 
     res.status(200).json({ mensagem: "Produto removido com sucesso" });
   } catch (err) {
-    console.error("Erro ao excluir produto:", err.message);
-    res.status(500).json({ erro: "Erro ao excluir produto" });
+    next(err);
   }
 };
 
@@ -96,3 +92,4 @@ module.exports = {
   atualizarProduto,
   removerProduto
 };
+

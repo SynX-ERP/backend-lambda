@@ -2,7 +2,7 @@ const db = require('../db');
 const { v4: uuidv4 } = require('uuid');
 
 // 🔍 Listar todos os endereços
-const listarEndereco = async (req, res) => {
+const listarEndereco = async (req, res, next) => {
     try {
         const result = await db.query(`
             SELECT id_endereco, id_usuario, rua, numero, complemento, bairro, cidade, estado, cep
@@ -11,13 +11,12 @@ const listarEndereco = async (req, res) => {
         `);
         res.status(200).json(result.rows);
     } catch (err) {
-        console.error('Erro ao listar endereços:', err.message);
-        res.status(500).json({ erro: 'Erro interno no servidor' });
+        next(err);
     }
 };
 
 // ➕ Criar novo endereço
-const criarEndereco = async (req, res) => {
+const criarEndereco = async (req, res, next) => {
     const { id_usuario, rua, numero, complemento, bairro, cidade, estado, cep } = req.body;
 
     if (!id_usuario || !rua || !numero || !bairro || !cidade || !estado || !cep) {
@@ -34,13 +33,12 @@ const criarEndereco = async (req, res) => {
 
         res.status(201).json({ mensagem: 'Endereço cadastrado com sucesso.' });
     } catch (err) {
-        console.error('Erro ao cadastrar endereço:', err.message);
-        res.status(500).json({ erro: 'Erro interno no servidor' });
+        next(err);
     }
 };
 
 // ✏️ Atualizar endereço
-const atualizarEndereco = async (req, res) => {
+const atualizarEndereco = async (req, res, next) => {
     const { id } = req.params;
     const { rua, numero, complemento, bairro, cidade, estado, cep } = req.body;
 
@@ -65,13 +63,12 @@ const atualizarEndereco = async (req, res) => {
 
         res.status(200).json(result.rows[0]);
     } catch (err) {
-        console.error('Erro ao atualizar endereço:', err.message);
-        res.status(500).json({ erro: 'Erro interno no servidor' });
+        next(err);
     }
 };
 
 // 🗑️ Deletar endereço
-const deletarEndereco = async (req, res) => {
+const deletarEndereco = async (req, res, next) => {
     const { id } = req.params;
 
     try {
@@ -86,12 +83,11 @@ const deletarEndereco = async (req, res) => {
 
         res.status(200).json({ mensagem: 'Endereço excluído com sucesso.' });
     } catch (err) {
-        console.error('Erro ao excluir endereço:', err.message);
-        res.status(500).json({ erro: 'Erro interno no servidor' });
+        next(err);
     }
 };
 
-const listarEnderecoPorUsuario = async (req, res) => {
+const listarEnderecoPorUsuario = async (req, res, next) => {
   const { id_usuario } = req.params;
 
   try {
@@ -102,13 +98,12 @@ const listarEnderecoPorUsuario = async (req, res) => {
 
     res.status(200).json(result.rows);
   } catch (err) {
-    console.error('Erro ao buscar endereços do usuário:', err.message);
-    res.status(500).json({ erro: 'Erro interno no servidor' });
+    next(err);
   }
 };
 
 // 🔍 Buscar endereço por ID
-const buscarEnderecoPorId = async (req, res) => {
+const buscarEnderecoPorId = async (req, res, next) => {
   const { id } = req.params;
 
   try {
@@ -123,8 +118,7 @@ const buscarEnderecoPorId = async (req, res) => {
 
     res.status(200).json(result.rows[0]);
   } catch (err) {
-    console.error('Erro ao buscar endereço por ID:', err.message);
-    res.status(500).json({ erro: 'Erro interno no servidor' });
+    next(err);
   }
 };
 
@@ -136,3 +130,4 @@ module.exports = {
     listarEnderecoPorUsuario,
     buscarEnderecoPorId
 };
+

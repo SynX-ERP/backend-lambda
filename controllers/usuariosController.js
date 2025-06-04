@@ -3,7 +3,7 @@ const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-const listarUsuarios = async (req, res) => {
+const listarUsuarios = async (req, res, next) => {
   try {
     const result = await db.query(`
       SELECT 
@@ -17,12 +17,11 @@ const listarUsuarios = async (req, res) => {
     `);
     res.status(200).json(result.rows);
   } catch (err) {
-    console.error('Erro ao listar usuários:', err.message);
-    res.status(500).json({ erro: 'Erro interno no servidor' });
+    next(err);
   }
 };
 
-const criarUsuario = async (req, res) => {
+const criarUsuario = async (req, res, next) => {
   const {
     nome_completo, email, senha, nivel_acesso = 'user',
     telefone = null, cpf = null, data_nascimento = null,
@@ -60,12 +59,11 @@ const criarUsuario = async (req, res) => {
     res.status(201).json(result.rows[0]);
 
   } catch (err) {
-    console.error('Erro ao criar usuário:', err.message);
-    res.status(500).json({ erro: 'Erro interno no servidor' });
+    next(err);
   }
 };
 
-const atualizarUsuario = async (req, res) => {
+const atualizarUsuario = async (req, res, next) => {
   const { id } = req.params;
   const {
     nome_completo, email, senha, nivel_acesso,
@@ -119,12 +117,11 @@ const atualizarUsuario = async (req, res) => {
     res.status(200).json(result.rows[0]);
 
   } catch (err) {
-    console.error('Erro ao atualizar usuário:', err.message);
-    res.status(500).json({ erro: 'Erro interno no servidor' });
+    next(err);
   }
 };
 
-const removerUsuario = async (req, res) => {
+const removerUsuario = async (req, res, next) => {
   const { id } = req.params;
 
   try {
@@ -140,12 +137,11 @@ const removerUsuario = async (req, res) => {
     res.status(200).json({ mensagem: 'Usuário removido com sucesso' });
 
   } catch (err) {
-    console.error('Erro ao remover usuário:', err.message);
-    res.status(500).json({ erro: 'Erro interno no servidor' });
+    next(err);
   }
 };
 
-const loginUsuario = async (req, res) => {
+const loginUsuario = async (req, res, next) => {
   const { email, senha } = req.body;
 
   if (!email || !senha) {
@@ -201,12 +197,11 @@ const loginUsuario = async (req, res) => {
     });
 
   } catch (err) {
-    console.error('Erro no login:', err.message);
-    res.status(500).json({ erro: 'Erro interno no servidor' });
+    next(err);
   }
 };
 
-const atualizarNivelAcesso = async (req, res) => {
+const atualizarNivelAcesso = async (req, res, next) => {
   const { id } = req.params;
   const { nivel_acesso } = req.body;
 
@@ -229,8 +224,7 @@ const atualizarNivelAcesso = async (req, res) => {
     res.status(200).json({ mensagem: 'Nível de acesso atualizado com sucesso' });
 
   } catch (err) {
-    console.error('Erro ao atualizar nível de acesso:', err.message);
-    res.status(500).json({ erro: 'Erro interno no servidor' });
+    next(err);
   }
 };
 
@@ -242,3 +236,4 @@ module.exports = {
   loginUsuario,
   atualizarNivelAcesso
 };
+

@@ -17,6 +17,9 @@ app.use('/enderecos', enderecoRoutes);
 const produtosRoutes = require('./routes/produtosRoutes');
 app.use('/produtos', produtosRoutes);
 
+// Middleware de tratamento de erros
+const errorHandler = require('./middlewares/errorHandler');
+
 // Rota padrão
 app.get('/', (req, res) => {
   res.send('✅ API do projeto está rodando com sucesso!');
@@ -26,6 +29,9 @@ app.get('/', (req, res) => {
 app.use((req, res, next) => {
   res.status(404).json({ erro: 'Rota não encontrada' });
 });
+
+// Middleware de tratamento de erros - precisa vir após todas as rotas
+app.use(errorHandler);
 
 if (require.main === module) {
   const PORT = process.env.PORT || 3000;

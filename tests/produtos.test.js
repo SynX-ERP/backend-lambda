@@ -1,4 +1,5 @@
 const request = require('supertest');
+const jwt = require('jsonwebtoken');
 
 jest.mock('../db');
 const db = require('../db');
@@ -36,7 +37,11 @@ describe('Produtos endpoints', () => {
   test('delete product successfully', async () => {
     db.query.mockResolvedValueOnce({ rowCount: 1 });
 
-    const res = await request(app).delete('/produtos/123');
+    const token = jwt.sign({}, process.env.JWT_SECRET || 'secret');
+
+    const res = await request(app)
+      .delete('/produtos/123')
+      .set('Authorization', `Bearer ${token}`);
 
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ mensagem: 'Produto removido com sucesso' });

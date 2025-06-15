@@ -1,0 +1,53 @@
+openapi: 3.0.0
+info:
+  title: Backend Lambda API
+  description: Documentação da API do projeto da faculdade
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000
+
+paths:
+  /usuarios:
+    get:
+      summary: Lista todos os usuários
+      responses:
+        '200':
+          description: Lista de usuários
+    post:
+      summary: Cria um novo usuário
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [nome_completo, email, senha]
+              properties:
+                nome_completo:
+                  type: string
+                email:
+                  type: string
+                senha:
+                  type: string
+      responses:
+        '201':
+          description: Usuário criado
+  /usuarios/login:
+    post:
+      summary: Realiza login do usuário
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, senha]
+              properties:
+                email:
+                  type: string
+                senha:
+                  type: string
+      responses:
+        '200':
+          description: Retorna token e dados do usuário

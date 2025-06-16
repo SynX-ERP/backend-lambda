@@ -130,7 +130,7 @@ components:
 info:
   description: Documentação completa da API com autenticação JWT, gerenciamento de
     usuários, produtos e endereços.
-  title: Backend Lambda API
+  title: Backend API
   version: 1.0.0
 openapi: 3.0.0
 paths:

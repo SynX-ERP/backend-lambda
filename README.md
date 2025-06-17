@@ -1,77 +1,90 @@
-# Backend Lambda API
+# API Backend Lambda
 
-This Node.js project exposes a small REST API for managing users, products and addresses.
-It uses Express and PostgreSQL with JWT authentication.
+Projeto em Node.js que oferece uma API REST para cadastro de **usuários**, **produtos** e **endereços**. A aplicação utiliza Express, PostgreSQL e autenticação via JWT. A documentação interativa encontra-se em `/api-docs` (Swagger UI).
 
-## Getting Started
+## Pré‑requisitos
 
-Install dependencies and provide environment variables in a `.env` file:
+* Node.js 14 ou superior
+* Banco de dados PostgreSQL acessível
+
+## Instalação
+
+1. Clone este repositório e acesse a pasta do projeto.
+2. Instale as dependências com `npm install`.
+3. Crie um arquivo `.env` preenchendo as variáveis abaixo:
 
 ```
-DATABASE_URL=postgres://user:password@host:port/dbname
-JWT_SECRET=your-secret-key
+DATABASE_URL=postgres://usuario:senha@host:porta/banco
+JWT_SECRET=chave-secreta
 JWT_EXPIRATION=1h
-PORT=3000 # optional
+PORT=3000 # opcional
 ```
 
-Then start the server:
+## Executando o servidor
+
+Após configurar o `.env`, inicie a API com o comando:
 
 ```
-npm install
 node index.js
 ```
 
-Run tests with:
+A rota raiz `/` irá responder com uma mensagem de sucesso indicando que o servidor está ativo.
+
+Para executar a suíte de testes:
 
 ```
 npm test
 ```
 
-The root endpoint `/` responds with a message confirming that the API is running.
+## Autenticação
 
-## Authentication
-
-Protected routes expect a `Bearer` token generated during login.
-Include the header:
+Algumas rotas exigem token JWT. Após realizar login, envie nos headers:
 
 ```
 Authorization: Bearer <token>
 ```
 
-## Endpoints
+## Principais Endpoints
 
-### Users
+### Usuários
 
-- `POST /usuarios/login` — authenticate a user.
+- `POST /usuarios/login` – autentica um usuário.
   - **Body**: `{ email, senha }`
-  - **Response**: `{ token, usuario: { ... } }`
-- `GET /usuarios` — list all users.
-- `POST /usuarios` — create a user.
+  - **Resposta**: `{ token, usuario: { ... } }`
+- `GET /usuarios` – lista os usuários cadastrados.
+- `POST /usuarios` – cria um novo usuário.
   - **Body**: `{ nome_completo, email, senha, nivel_acesso?, telefone?, cpf?, data_nascimento?, genero?, foto_perfil? }`
-- `PUT /usuarios/:id` — update a user *(requires auth)*.
-- `DELETE /usuarios/:id` — remove a user *(requires auth)*.
-- `PUT /usuarios/:id/nivel` — update access level *(requires auth)*.
+- `PUT /usuarios/:id` – atualiza um usuário *(requer autenticação)*.
+- `DELETE /usuarios/:id` – remove um usuário *(requer autenticação)*.
+- `PUT /usuarios/:id/nivel` – altera o nível de acesso *(requer autenticação)*.
 
-### Addresses
+### Endereços
 
-- `GET /enderecos` — list all addresses.
-- `GET /enderecos/:id` — fetch address by id.
-- `GET /enderecos/usuario/:id_usuario` — list addresses for a user.
-- `POST /enderecos` — create an address.
+- `GET /enderecos` – lista todos os endereços.
+- `GET /enderecos/:id` – busca um endereço pelo ID.
+- `GET /enderecos/usuario/:id_usuario` – endereços de um usuário.
+- `POST /enderecos` – cadastra um endereço.
   - **Body**: `{ id_usuario, rua, numero, complemento?, bairro, cidade, estado, cep }`
-- `PUT /enderecos/:id` — update an address *(requires auth)*.
-- `DELETE /enderecos/:id` — delete an address *(requires auth)*.
+- `PUT /enderecos/:id` – atualiza um endereço *(requer autenticação)*.
+- `DELETE /enderecos/:id` – exclui um endereço *(requer autenticação)*.
 
-### Products
+### Produtos
 
-- `GET /produtos` — list all products.
-- `POST /produtos` — create a product.
+- `GET /produtos` – lista todos os produtos.
+- `POST /produtos` – cria um produto.
   - **Body**: `{ codigo, nome, preco, categoria?, descricao?, imagem? }`
-- `PUT /produtos/:id` — update a product *(requires auth)*.
-- `DELETE /produtos/:id` — remove a product *(requires auth)*.
+- `PUT /produtos/:id` – atualiza um produto *(requer autenticação)*.
+- `DELETE /produtos/:id` – remove um produto *(requer autenticação)*.
 
 ---
 
-All responses are JSON. Error messages are returned with an `erro` field and an
-appropriate HTTP status code.
+Todas as respostas são em JSON. Mensagens de erro trazem o campo `erro` e o respectivo código HTTP.
+
+### Estrutura do Projeto
+
+* `routes/` – define as rotas da API.
+* `controllers/` – lógica de cada recurso.
+* `middleware/` – autenticação JWT e validações.
+* `validators/` – regras simples de validação dos campos.
+* `tests/` – testes automatizados com Jest e Supertest.
 
